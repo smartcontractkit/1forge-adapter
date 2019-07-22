@@ -8,11 +8,13 @@ const createRequest = (input, callback) => {
   const from = input.data.from || "";
   const to = input.data.to || "";
   const pairs = input.data.pairs || "";
+  const quantity = input.data.quantity || "";
 
   let queryObj = {
     from: from,
 	to: to,
 	pairs: pairs,
+	quantity: quantity,
 	api_key: process.env.API_KEY
   }
   for (let key in queryObj) {
