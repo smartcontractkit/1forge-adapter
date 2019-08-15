@@ -2,20 +2,20 @@ const request = require('request');
 
 const createRequest = (input, callback) => {
   let url = "https://forex.1forge.com/1.0.3/";
-  const endpoint = input.data.endpoint || "";
+  const endpoint = input.data.endpoint || "convert";
   url = url + endpoint;
 
   const from = input.data.from || "";
   const to = input.data.to || "";
   const pairs = input.data.pairs || "";
-  const quantity = input.data.quantity || "";
+  const quantity = input.data.quantity || 1;
 
   let queryObj = {
     from: from,
-	to: to,
-	pairs: pairs,
-	quantity: quantity,
-	api_key: process.env.API_KEY
+    to: to,
+    pairs: pairs,
+    quantity: quantity,
+    api_key: process.env.API_KEY
   }
   for (let key in queryObj) {
     if (queryObj[key] === "") {
@@ -40,6 +40,7 @@ const createRequest = (input, callback) => {
       callback(response.statusCode, {
         jobRunID: input.id,
         data: body,
+        result: body.value || body[0].price,
         statusCode: response.statusCode
       });
     }
