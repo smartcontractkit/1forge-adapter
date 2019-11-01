@@ -1,7 +1,7 @@
 const request = require('request');
 
 const createRequest = (input, callback) => {
-  let url = "https://forex.1forge.com/1.0.3/";
+  let url = "https://api.1forge.com/";
   const endpoint = input.data.endpoint || "convert";
   url = url + endpoint;
 
