@@ -1,14 +1,48 @@
-const request = require('request');
+const rp = require('request-promise')
+const retries = process.env.RETRIES || 3
+const delay = process.env.RETRY_DELAY || 1000
+
+const requestRetry = (options, retries) => {
+  return new Promise((resolve, reject) => {
+    const retry = (options, n) => {
+      return rp(options)
+        .then(response => {
+          if (response.body.error) {
+            if (n === 1) {
+              reject(response)
+            } else {
+              setTimeout(() => {
+                retries--
+                retry(options, retries)
+              }, delay)
+            }
+          } else {
+            return resolve(response)
+          }
+        })
+        .catch(error => {
+          if (n === 1) {
+            reject(error)
+          } else {
+            setTimeout(() => {
+              retries--
+              retry(options, retries)
+            }, delay)
+          }
+        })
+    }
+    return retry(options, retries)
+  })
+}
 
 const createRequest = (input, callback) => {
-  let url = "https://api.1forge.com/";
-  const endpoint = input.data.endpoint || "convert";
-  url = url + endpoint;
+  const endpoint = input.data.endpoint || 'convert'
+  const url = `https://api.1forge.com/${endpoint}`
 
-  const from = input.data.from || "";
-  const to = input.data.to || "";
-  const pairs = input.data.pairs || "";
-  const quantity = input.data.quantity || 1;
+  const from = input.data.from || ''
+  const to = input.data.to || ''
+  const pairs = input.data.pairs || ''
+  const quantity = input.data.quantity || 1
 
   let queryObj = {
     from: from,
@@ -18,45 +52,58 @@ const createRequest = (input, callback) => {
     api_key: process.env.API_KEY
   }
   for (let key in queryObj) {
-    if (queryObj[key] === "") {
-      delete queryObj[key];
+    if (queryObj[key] === '') {
+      delete queryObj[key]
     }
   }
 
   const options = {
     url: url,
     qs: queryObj,
-    json: true
+    json: true,
+    resolveWithFullResponse: true
   }
-  request(options, (error, response, body) => {
-    if (error || response.statusCode >= 400) {
+  requestRetry(options, retries)
+    .then(response => {
+      const result = response.body.value || response.body[0].price
+      response.body.result = result
       callback(response.statusCode, {
         jobRunID: input.id,
-        status: "errored",
-        error: body,
+        data: response.body,
+        result,
         statusCode: response.statusCode
-      });
-    } else {
-      callback(response.statusCode, {
+      })
+    })
+    .catch(error => {
+      callback(error.statusCode, {
         jobRunID: input.id,
-        data: body,
-        result: body.value || body[0].price,
-        statusCode: response.statusCode
-      });
-    }
-  });
-};
+        status: 'errored',
+        error,
+        statusCode: error.statusCode
+      })
+    })
+}
 
 exports.gcpservice = (req, res) => {
   createRequest(req.body, (statusCode, data) => {
-    res.status(statusCode).send(data);
-  });
-};
+    res.status(statusCode).send(data)
+  })
+}
 
 exports.handler = (event, context, callback) => {
   createRequest(event, (statusCode, data) => {
-    callback(null, data);
-  });
+    callback(null, data)
+  })
 }
 
-module.exports.createRequest = createRequest;
+exports.handlerv2 = (event, context, callback) => {
+  createRequest(JSON.parse(event.body), (statusCode, data) => {
+    callback(null, {
+      statusCode: statusCode,
+      body: JSON.stringify(data),
+      isBase64Encoded: false
+    })
+  })
+}
+
+module.exports.createRequest = createRequest

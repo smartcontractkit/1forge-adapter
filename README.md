@@ -10,19 +10,33 @@
 ## Install
 
 ```bash
-npm install
+yarn install
 ```
 
 ## Test
 
 ```bash
-npm test
+yarn test
 ```
 
 ## Create the zip
 
 ```bash
-zip -r cl-ea.zip .
+zip -r cl-1forge.zip .
+```
+
+## Docker
+
+If you wish to use Docker to run the adapter, you can build the image by running the following command:
+
+```bash
+docker build . -t 1forge-adapter
+```
+
+Then run it with:
+
+```bash
+docker run -p 8080:8080 -e API_KEY='YOUR_API_KEY' -it 1forge-adapter:latest
 ```
 
 ## Install to AWS Lambda
@@ -34,7 +48,7 @@ zip -r cl-ea.zip .
   - Choose an existing role or create a new one
   - Click Create Function
 - Under Function code, select "Upload a .zip file" from the Code entry type drop-down
-- Click Upload and select the `cl-ea.zip` file
+- Click Upload and select the `cl-1forge.zip` file
 - Handler should remain index.handler
 - Add the environment variable (repeat for all environment variables):
   - Key: API_KEY
@@ -45,7 +59,7 @@ zip -r cl-ea.zip .
 ## Install to GCP
 
 - In Functions, create a new function, choose to ZIP upload
-- Click Browse and select the `cl-ea.zip` file
+- Click Browse and select the `cl-1forge.zip` file
 - Select a Storage Bucket to keep the zip in
 - Function to execute: gcpservice
 - Click More, Add variable (repeat for all environment variables)
