@@ -2,15 +2,30 @@
 
 ## Input Params
 
-- `endpoint`: The endpoint to call (required)
-- `to`: The target currency to query (required for convert endpoint)
-- `from`: The currency to convert to (required for convert endpoint)
-- `pairs`: The comma-separated list of pairings (required for quotes endpoint)
+- `base` or `to`: The target currency to query (required)
+- `quote` or `from`: The currency to convert to (required)
+- `endpoint`: The endpoint to call (optional)
+
+## Output
+
+```json
+{
+ "jobRunID": "1",
+ "data": {
+  "value": 1.22687,
+  "text": "1.0 GBP is worth 1.22687 USD",
+  "timestamp": 1587489920,
+  "result": 1.22687
+ },
+ "result": 1.22687,
+ "statusCode": 200
+}
+```
 
 ## Install
 
 ```bash
-yarn install
+yarn
 ```
 
 ## Test
@@ -44,7 +59,7 @@ docker run -p 8080:8080 -e API_KEY='YOUR_API_KEY' -it 1forge-adapter:latest
 - In Lambda Functions, create function
 - On the Create function page:
   - Give the function a name
-  - Use Node.js 8.10 for the runtime
+  - Use Node.js 12.x for the runtime
   - Choose an existing role or create a new one
   - Click Create Function
 - Under Function code, select "Upload a .zip file" from the Code entry type drop-down
