@@ -1,20 +1,9 @@
 const {Requester, Validator} = require('external-adapter')
 
-// Define custom error scenarios for the API.
-// Return true for the adapter to retry.
-const customError = (body) => {
-  return (body.error)
-}
-
-// Define custom parameters to be used by the adapter.
-// Extra parameters can be stated in the extra object,
-// with a Boolean value indicating whether or not they
-// should be required.
 const customParams = {
-  base: ['base', 'from', 'coin', 'fsym'],
-  quote: ['quote', 'to', 'market', 'tsyms'],
+  base: ['base', 'from'],
+  quote: ['quote', 'to'],
   endpoint: false,
-  pairs: false,
   quantity: false
 }
 
@@ -25,16 +14,14 @@ const createRequest = (input, callback) => {
   const url = `https://api.1forge.com/${endpoint}`
   const from = validator.validated.data.base.toUpperCase()
   const to = validator.validated.data.quote.toUpperCase()
-  const pairs = validator.validated.data.pairs
   const quantity = validator.validated.data.quantity || 1
-  const apikey = process.env.API_KEY
+  const api_key = process.env.API_KEY
 
   const qs = {
     from,
     to,
-    pairs,
     quantity,
-    apikey
+    api_key
   }
 
   const options = {
@@ -42,7 +29,7 @@ const createRequest = (input, callback) => {
     qs
   }
 
-  Requester.requestRetry(options, customError)
+  Requester.requestRetry(options)
       .then(response => {
         response.body.result = Requester.validateResult(response.body, ["value"])
         callback(response.statusCode, Requester.success(jobRunID, response))
