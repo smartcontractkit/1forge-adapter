@@ -1,4 +1,4 @@
-const {Requester, Validator} = require('external-adapter')
+const { Requester, Validator } = require('external-adapter')
 
 const customParams = {
   base: ['base', 'from'],
@@ -15,7 +15,7 @@ const createRequest = (input, callback) => {
   const from = validator.validated.data.base.toUpperCase()
   const to = validator.validated.data.quote.toUpperCase()
   const quantity = validator.validated.data.quantity || 1
-  const api_key = process.env.API_KEY
+  const api_key = process.env.API_KEY // eslint-disable-line camelcase
 
   const qs = {
     from,
@@ -30,13 +30,13 @@ const createRequest = (input, callback) => {
   }
 
   Requester.requestRetry(options)
-      .then(response => {
-        response.body.result = Requester.validateResult(response.body, ["value"])
-        callback(response.statusCode, Requester.success(jobRunID, response))
-      })
-      .catch(error => {
-        callback(500, Requester.errored(jobRunID, error))
-      })
+    .then(response => {
+      response.body.result = Requester.validateResult(response.body, ['value'])
+      callback(response.statusCode, Requester.success(jobRunID, response))
+    })
+    .catch(error => {
+      callback(500, Requester.errored(jobRunID, error))
+    })
 }
 
 exports.gcpservice = (req, res) => {
