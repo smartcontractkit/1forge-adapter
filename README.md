@@ -1,5 +1,7 @@
 # Chainlink 1Forge External Adapter
 
+**This adapter has moved to our [external adapters monorepo](https://github.com/smartcontractkit/external-adapters-js)!**
+
 ## Input Params
 
 - `base` or `to`: The target currency to query (required)
